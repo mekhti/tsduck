@@ -36,7 +36,7 @@ rep = Logger()
 tsp = tsduck.TSProcessor(rep)
 
 tsp.input = ['file', 'file.ts']
-tsp.plugins = [ ['analyze', '--json-line=' + json_marker] ]
+tsp.plugins = [['analyze', f'--json-line={json_marker}']]
 tsp.output = ['drop']
 
 tsp.start()

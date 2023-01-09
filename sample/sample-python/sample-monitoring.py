@@ -22,7 +22,7 @@ url = "https://tsduck.io/streams/france-dttv/tnt-uhf30-546MHz-2019-01-22.ts"
 tsfile = tempfile.gettempdir() + os.path.sep + tempfile.gettempprefix() + str(os.getpid()) + ".ts"
 
 # First phase: Download the TS file:
-print("Downloading %s to %s ..." % (url, tsfile))
+print(f"Downloading {url} to {tsfile} ...")
 
 tsp = tsduck.TSProcessor(rep)
 tsp.input = ['http', url]
@@ -33,7 +33,7 @@ tsp.delete()
 
 # Second phase: Play the file at regulated speed several times.
 # Must use another instance of tsduck.TSProcessor.
-print("Playing %s ..." % (tsfile))
+print(f"Playing {tsfile} ...")
 
 tsp = tsduck.TSProcessor(rep)
 tsp.input = ['file', tsfile, '--repeat', '2']

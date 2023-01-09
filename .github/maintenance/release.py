@@ -89,8 +89,8 @@ installers = [
 # Get latest release and verify the format of its tag.
 def get_latest_release():
     release = repo.repo.get_latest_release()
-    if re.fullmatch('v' + pattern_version, release.tag_name) is None:
-        repo.fatal('invalid tag "%s"' % release.tag_name)
+    if re.fullmatch(f'v{pattern_version}', release.tag_name) is None:
+        repo.fatal(f'invalid tag "{release.tag_name}"')
     return release
 
 # A function to get the TSDuck version from tsVersion.h in the repo.
@@ -100,7 +100,7 @@ def get_tsduck_version():
                       r'^ *#define +TS_COMMIT +(\d+) *$',
                       repo.get_text_file('src/libtsduck/tsVersion.h'),
                       re.MULTILINE | re.DOTALL)
-    return None if match is None else '%s.%s-%s' % (match.group(1), match.group(2), match.group(3))
+    return None if match is None else f'{match[1]}.{match[2]}-{match[3]}'
 
 # A function to locate all local installer packages.
 # Update the installers list with 'file' elements.
@@ -109,12 +109,14 @@ def search_installers(version):
     # Get directory where installation packages are located.
     dir = repo.scriptdir
     while True:
-        pkgdir = dir + '/installers'
+        pkgdir = f'{dir}/installers'
         if os.path.isdir(pkgdir):
             break
         parent = os.path.dirname(dir)
         if os.path.samefile(dir, parent):
-            repo.error('installers directory not found, starting from %s, upwards' % repo.scriptdir)
+            repo.error(
+                f'installers directory not found, starting from {repo.scriptdir}, upwards'
+            )
             return False
         dir = parent
     # Search expected installer files.
@@ -122,12 +124,12 @@ def search_installers(version):
     for i in range(len(installers)):
         # Find files matching the pattern in the directory.
         pattern = installers[i].glob_pattern(version)
-        files = [f for f in glob.glob(pkgdir + '/' + pattern)]
-        if len(files) == 0:
-            repo.error('no package matching %s' % pattern)
+        files = list(glob.glob(f'{pkgdir}/{pattern}'))
+        if not files:
+            repo.error(f'no package matching {pattern}')
             success = False
         elif len(files) > 1:
-            repo.error('more than one package matching %s' % pattern)
+            repo.error(f'more than one package matching {pattern}')
             success = False
         else:
             installers[i].file = files[0]
@@ -138,13 +140,13 @@ class body_builder:
     def __init__(self, release):
         # Get all assets in this release.
         self.text = ''
-        self.assets = [a for a in release.get_assets()]
+        self.assets = list(release.get_assets())
     def get_text(self):
         return self.text
     def line(self, line):
         self.text += line + '\r\n'
     def ref(self, prefix, name, url):
-        self.text += '* ' + prefix + ': [' + name + '](' + url + ')\r\n'
+        self.text += f'* {prefix}: [{name}]({url}' + ')\r\n'
     def url(self, prefix, pattern):
         for a in self.assets:
             if re.fullmatch(pattern, a.name) is not None:
@@ -170,7 +172,7 @@ def build_body_text(release):
 
 # Build the title of a release.
 def build_title(release):
-    return 'Version %s' % release.tag_name[1:]
+    return f'Version {release.tag_name[1:]}'
 
 # Main code.
 if not (opt_title or opt_text or opt_verify or opt_update or opt_create):
@@ -186,72 +188,71 @@ if opt_verify:
     # Same as --update --dry-run
     opt_update = True
     repo.dry_run = True
-    
+
 if opt_update:
     release = get_latest_release()
     title = build_title(release)
     body = build_body_text(release)
-    repo.info('Release: %s' % release.title)
+    repo.info(f'Release: {release.title}')
     if title == release.title:
         repo.info('Release title is already set')
     if body == release.body:
         repo.info('Release body text is already set')
-    if title != release.title or body != release.body:
-        if repo.dry_run:
-            if title != release.title:
-                repo.warning('title should be changed to: %s' % title)
-            if body != release.body:
-                repo.warning('body text should be updated')
-        else:
-            # Actually perform the update.
-            repo.info('Updating release title and body text')
-            release.update_release(title, body)
+    if title != release.title and repo.dry_run:
+        repo.warning(f'title should be changed to: {title}')
+        if body != release.body:
+            repo.warning('body text should be updated')
+    elif title != release.title or body != release.body and not repo.dry_run:
+        # Actually perform the update.
+        repo.info('Updating release title and body text')
+        release.update_release(title, body)
 
+    elif body != release.body:
+        repo.warning('body text should be updated')
 if opt_create:
     # Get the version from tsVersion.h in the repo.
     version = get_tsduck_version()
-    title = 'Version %s' % version
-    repo.info('TSDuck version: %s' % version)
+    title = f'Version {version}'
+    repo.info(f'TSDuck version: {version}')
 
     # Locate the installer packages to upload.
     if not search_installers(version):
         repo.fatal('cannot create version, fix package files first')
 
     # Check if the tag already exists in the repository.
-    tag_name = 'v' + version
-    tags = [t for t in repo.repo.get_tags() if t.name == tag_name]
-    if len(tags) > 0:
-        repo.info('Tag %s already exists' % tag_name)
+    tag_name = f'v{version}'
+    if tags := [t for t in repo.repo.get_tags() if t.name == tag_name]:
+        repo.info(f'Tag {tag_name} already exists')
     else:
-        repo.info('Tag %s does not exist, creating it on last commit' % tag_name)
+        repo.info(f'Tag {tag_name} does not exist, creating it on last commit')
         if not repo.dry_run:
             for last_commit in repo.repo.get_commits():
                 break
             tag = repo.repo.create_git_tag(tag_name, message='', type='commit', object=last_commit.sha)
-            repo.repo.create_git_ref('refs/tags/{}'.format(tag.tag), tag.sha)
+            repo.repo.create_git_ref(f'refs/tags/{tag.tag}', tag.sha)
 
-    # Check if a release exists for that tag.
-    releases = [rel for rel in repo.repo.get_releases() if rel.tag_name == tag_name]
-    if len(releases) > 0:
+    if releases := [
+        rel for rel in repo.repo.get_releases() if rel.tag_name == tag_name
+    ]:
         release = releases[0]
-        repo.info('A release already exists for tag %s (%s)' % (tag_name, release.title))
+        repo.info(f'A release already exists for tag {tag_name} ({release.title})')
     else:
-        title = 'Version %s' % version
-        repo.info('Creating release "%s"' % title)
+        title = f'Version {version}'
+        repo.info(f'Creating release "{title}"')
         if repo.dry_run:
             # In case of dry run, we cannot do anything else.
             exit(0)
         release = repo.repo.create_git_release(tag_name, title, '')
 
     # Upload assets which are not yet uploaded.
-    assets = [a for a in release.get_assets()]
+    assets = list(release.get_assets())
     for ins in installers:
         if ins.file is not None:
             asset_name = os.path.basename(ins.file)
-            if len([a for a in assets if a.name == asset_name]) > 0:
-                repo.info("File %s already uploaded" % asset_name)
+            if [a for a in assets if a.name == asset_name]:
+                repo.info(f"File {asset_name} already uploaded")
             else:
-                repo.info("Uploading %s" % ins.file)
+                repo.info(f"Uploading {ins.file}")
                 if not repo.dry_run:
                     release.upload_asset(ins.file)
 

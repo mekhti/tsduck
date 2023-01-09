@@ -37,7 +37,7 @@
 import sys, datetime, tsgithub
 
 max_age = 150 # days
-today = datetime.datetime.today().toordinal()
+today = datetime.datetime.now().toordinal()
 
 # Get command line options.
 repo = tsgithub.repository(sys.argv)
@@ -45,7 +45,9 @@ repo.check_opt_final()
 
 # First, get all "close pending" issues at once.
 # We cannot do the cleanup in a get_issues() loop because we change the search criteria and the list can be paginated.
-pending_issues = [i for i in repo.repo.get_issues(state = 'all', labels = ['close pending'])]
+pending_issues = list(
+    repo.repo.get_issues(state='all', labels=['close pending'])
+)
 
 # Then, do the cleanup in a second pass.
 for issue in pending_issues:

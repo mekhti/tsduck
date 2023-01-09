@@ -50,7 +50,7 @@ class repository:
         # Decode command line options, remove common options from argv.
         self.token = self.get_opt('--token', os.getenv('GITHUB_TOKEN', os.getenv('HOMEBREW_GITHUB_API_TOKEN')))
         self.repo_name = self.get_opt('--repo', 'tsduck/tsduck')
-        self.repo_url = 'https://github.com/%s/' % self.repo_name
+        self.repo_url = f'https://github.com/{self.repo_name}/'
         self.repo_branch = self.get_opt('--branch', 'master')
         self.dry_run = self.has_opt(['-n', '--dry-run'])
         self.verbose_mode = self.has_opt(['-v', '--verbose'])
@@ -102,7 +102,7 @@ class repository:
     # Check that all command line options were recognized.
     def check_opt_final(self):
         if len(self.argv) > 1:
-            self.fatal('extraneous options: %s' % ' '.join(self.argv[1:]))
+            self.fatal(f"extraneous options: {' '.join(self.argv[1:])}")
 
     # Message reporting.
     def verbose(self, message):
@@ -111,9 +111,9 @@ class repository:
     def info(self, message):
         print(message, file=sys.stderr)
     def warning(self, message):
-        print('%s: warning: %s' % (self.script, message), file=sys.stderr)
+        print(f'{self.script}: warning: {message}', file=sys.stderr)
     def error(self, message):
-        print('%s: error: %s' % (self.script, message), file=sys.stderr)
+        print(f'{self.script}: error: {message}', file=sys.stderr)
     def fatal(self, message):
         self.error(message)
         exit(1)
@@ -126,7 +126,7 @@ class repository:
 # A progressive display context.
 class progress:
     def __init__(self, name):
-        print('Fetching %s ' % name, file=sys.stderr, end='', flush=True)
+        print(f'Fetching {name} ', file=sys.stderr, end='', flush=True)
         self.count = 0
     def more(self):
         self.count += 1
@@ -151,13 +151,13 @@ def to_datetime(date):
     match = re.match(r'\s*(\d{2}\s+[a-zA-Z]{3}\s+\d{4}\s+\d{2}:\d{2}:\d{2})', date)
     if match is not None:
         try:
-            return datetime.datetime.strptime(match.group(1), '%d %b %Y %H:%M:%S')
+            return datetime.datetime.strptime(match[1], '%d %b %Y %H:%M:%S')
         except:
             pass
     match = re.match(r'\s*(\d{2}\s+[a-zA-Z]{3}\s+\d{4})', date)
     if match is not None:
         try:
-            return datetime.datetime.strptime(match.group(1), '%d %b %Y')
+            return datetime.datetime.strptime(match[1], '%d %b %Y')
         except:
             pass
     return datetime.now()

@@ -27,7 +27,7 @@ def process_xml(root):
         for srv in sdt.findall('./service'):
             id = int(srv.attrib['service_id'], base=0)
             sdesc = srv.find('./service_descriptor')
-            if sdesc == None:
+            if sdesc is None:
                 name = '(unknown)'
                 provider = '(unknown)'
             else:
@@ -49,7 +49,18 @@ rep = Logger()
 tsp = tsduck.TSProcessor(rep)
 
 tsp.input = ['file', 'file.ts']
-tsp.plugins = [ ['tables', '--pid', '0x11', '--tid', '0x42', '--max-tables', '1', '--log-xml-line=' + sdt_xml_marker] ]
+tsp.plugins = [
+    [
+        'tables',
+        '--pid',
+        '0x11',
+        '--tid',
+        '0x42',
+        '--max-tables',
+        '1',
+        f'--log-xml-line={sdt_xml_marker}',
+    ]
+]
 tsp.output = ['drop']
 
 tsp.start()

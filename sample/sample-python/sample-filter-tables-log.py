@@ -22,7 +22,7 @@ class Logger(tsduck.AbstractAsyncReport):
         pos = message.find(LOG_PREFIX)
         if pos >= 0:
             hexa = message[pos+len(LOG_PREFIX):]
-            print("Table: %s" % (hexa))
+            print(f"Table: {hexa}")
 
 # Create an asynchronous report to log multi-threaded messages.
 rep = Logger()
@@ -30,7 +30,7 @@ rep = Logger()
 # Create a TS processor, set plugin chain.
 tsp = tsduck.TSProcessor(rep)
 tsp.input = ['http', 'https://github.com/tsduck/tsduck-test/raw/master/input/test-001.ts']
-tsp.plugins = [ ['tables', '--pid', '0', '--log-hexa-line=' + LOG_PREFIX] ]
+tsp.plugins = [['tables', '--pid', '0', f'--log-hexa-line={LOG_PREFIX}']]
 tsp.output = ['drop']
 
 # Run the TS processing and wait until completion.

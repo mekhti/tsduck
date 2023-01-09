@@ -51,9 +51,9 @@ class user_context:
     def add(self, date):
         self.commits += 1
         date = tsgithub.to_datetime(date)
-        if self.first == None or self.first > date:
+        if self.first is None or self.first > date:
             self.first = date
-        if self.last == None or self.last < date:
+        if self.last is None or self.last < date:
             self.last = date
 
     def __lt__(self, other):
@@ -90,7 +90,7 @@ for commit in repo.repo.get_commits():
     else:
         name = index = '(unknown)'
     # Collect additional information only once per user for performance reasons.
-    if not index in users:
+    if index not in users:
         altname = ''
         if is_named_user:
             fullname = commit.author.name
@@ -100,13 +100,13 @@ for commit in repo.repo.get_commits():
             altname = commit.raw_data['commit']['author']['name']
             if email is None or email == '':
                 email = commit.raw_data['commit']['author']['email']
-        if fullname != altname and altname != '':
+        if fullname != altname != '':
             if fullname != '':
                 fullname += ', '
             fullname += altname
         if email is not None and email != '':
             if fullname != '':
-                fullname += ' (' + email + ')'
+                fullname += f' ({email})'
             else:
                 fullname = email
         users[index] = user_context(name, fullname)
@@ -118,6 +118,6 @@ prog.end()
 # Print final summary
 total.name += ' (%d users)' % len(users)
 print(user_context.header)
-print(str(total))
+print(total)
 for user in sorted(users.values(), reverse = True):
-    print(str(user))
+    print(user)

@@ -68,7 +68,7 @@ prog = tsgithub.progress('issues')
 for issue in repo.repo.get_issues(state = 'all'):
     prog.more()
     user_name = issue.user.login
-    if not user_name in users:
+    if user_name not in users:
         users[user_name] = user_context(user_name)
     if issue.pull_request is None:
         # This is a standard issue.
@@ -78,7 +78,7 @@ for issue in repo.repo.get_issues(state = 'all'):
         # This is a pull request.
         users[user_name].prs += 1
         total.prs += 1
-    if not issue.body is None:
+    if issue.body is not None:
         size = len(issue.body)
         users[user_name].characters += size
         total.characters += size
@@ -89,11 +89,11 @@ prog = tsgithub.progress('comments')
 for comment in repo.repo.get_issues_comments():
     prog.more()
     user_name = comment.user.login
-    if not user_name in users:
+    if user_name not in users:
         users[user_name] = user_context(user_name)
     users[user_name].comments += 1
     total.comments += 1
-    if not comment.body is None:
+    if comment.body is not None:
         size = len(comment.body)
         users[user_name].characters += size
         total.characters += size
@@ -102,6 +102,6 @@ prog.end()
 # Print final summary
 total.name += ' (%d users)' % len(users)
 print(user_context.header)
-print(str(total))
+print(total)
 for user in sorted(users.values(), reverse = True):
-    print(str(user))
+    print(user)
