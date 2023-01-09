@@ -24,7 +24,7 @@ class Logger(tsduck.AbstractAsyncReport):
 # Create an asynchronous report to log multi-threaded messages.
 # In this example, this is a user-defined Python class which collects messages.
 rep = Logger(severity = tsduck.Report.Verbose)
-rep.info("TSDuck version: %s" % tsduck.__version__)
+rep.info(f"TSDuck version: {tsduck.__version__}")
 
 # Create a TS processor using the report.
 tsp = tsduck.TSProcessor(rep)

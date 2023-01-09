@@ -62,7 +62,7 @@ def list_all_structures(output, dirname, title, label):
     lines = []
     # Loop on all .h files in the directory.
     for header in glob.glob(dirname + os.sep + 'ts*.h'):
-        classname = re.search(r'^ts(.*)\.h$', os.path.basename(header)).group(1)
+        classname = re.search(r'^ts(.*)\.h$', os.path.basename(header))[1]
         source = dirname + os.sep + 'ts' + classname + '.cpp'
         xml = ''
         if os.path.exists(source):
@@ -70,21 +70,21 @@ def list_all_structures(output, dirname, title, label):
                 for line in input:
                     match = re.search(r'^\s*#define\s+MY_XML_NAME\s+u"([^"]*)"', line)
                     if match is not None:
-                        xml = match.group(1)
+                        xml = match[1]
                         break
             if xml != '':
                 with open(header, 'r', encoding='utf-8') as input:
                     for line in input:
                         match = re.search(r'@see\s+(.*)$', line)
                         if match is not None:
-                            doc = match.group(1)
+                            doc = match[1]
                             doc = re.sub(r'[, ]*\| *', ', ', doc)
                             doc = re.sub(r'[, ]* section +', ', ', doc)
                             doc = re.sub(r'[, ]* clause +', ', ', doc)
                             doc = re.sub(r'[\.\s]*$', '', doc)
                             doc = re.sub(r'ITU-T +Rec\.* H', 'ITU-T H', doc)
                             doc = re.sub(r'^SCTE', 'ANSI/SCTE', doc)
-                            lines.append('| %s | ts::%s | %s' % (xml, classname, doc))
+                            lines.append(f'| {xml} | ts::{classname} | {doc}')
                             break
     # Sort the lines and display them.
     lines = sorted(lines, key=str.casefold)
@@ -94,5 +94,7 @@ def list_all_structures(output, dirname, title, label):
 # Main code.
 with open(out_file, 'w') as output:
     print(file_header, file=output)
-    list_all_structures(output, dtv_dir + "tables", "Tables", "sigxtables")
-    list_all_structures(output, dtv_dir + "descriptors", "Descriptors", "sigxdescs")
+    list_all_structures(output, f"{dtv_dir}tables", "Tables", "sigxtables")
+    list_all_structures(
+        output, f"{dtv_dir}descriptors", "Descriptors", "sigxdescs"
+    )

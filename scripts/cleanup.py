@@ -38,22 +38,18 @@ import sys, os, shutil, fnmatch
 
 # Sort a list, remove duplicates and empty strings.
 def cleanup_list(l):
-    l = list(set(l))
-    l.sort()
+    l = sorted(set(l))
     if '' in l:
         l.remove('')
     return l
 
 # Check if a file name matches a pattern from a list.
 def match_any(name, patterns):
-    for pat in patterns:
-        if fnmatch.fnmatch(name, pat):
-            return True
-    return False
+    return any(fnmatch.fnmatch(name, pat) for pat in patterns)
 
 # Handler for rmtree() error
 def rmtree_error(func, file_path, excinfo):
-    print('**** error removing %s' % file_path)
+    print(f'**** error removing {file_path}')
 
 # Cleanup a directory tree.
 def cleanup_directory(root, keep, remove, norecurse):
@@ -79,7 +75,7 @@ def cleanup_directory(root, keep, remove, norecurse):
         file_path = root + os.sep + file_name
         is_dir = os.path.isdir(file_path)
         if not match_any(file_name, keep) and match_any(file_name, remove):
-            print('---- removing %s' % file_path)
+            print(f'---- removing {file_path}')
             if is_dir:
                 shutil.rmtree(file_path, onerror = rmtree_error)
             else:

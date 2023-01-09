@@ -44,7 +44,7 @@
 import tsbuild, sys, os, stat
 
 root_dir = tsbuild.repo_root()
-githooks_dir = root_dir + '/.git/hooks'
+githooks_dir = f'{root_dir}/.git/hooks'
 githooks_list = ('pre-commit', 'pre-merge-commit', 'post-merge')
 
 # Give up if not in a Git repo.
@@ -72,9 +72,9 @@ for hook in githooks_list:
     file = githooks_dir + os.sep + hook
     content = tsbuild.read(file) if os.path.isfile(file) else ''
     if '/scripts/git-hook.sh' not in content:
-        print('Updating Git hook %s' % hook)
+        print(f'Updating Git hook {hook}')
         if content == '':
             content = '#!/usr/bin/env bash\n'
-        content += '$(dirname "$0")/../../scripts/git-hook.sh ' + hook + '\n'
+        content += f'$(dirname "$0")/../../scripts/git-hook.sh {hook}' + '\n'
         tsbuild.write(file, content)
         os.chmod(file, stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IXGRP)

@@ -46,7 +46,7 @@ print('Purging artifacts in repo %s, keeping %d copies of each artifact ...' % (
 
 # First, get all artifacts at once.
 # We cannot do the cleanup in a get_artifacts() loop because we delete some and the list can be paginated.
-artifacts = [i for i in repo.repo.get_artifacts()]
+artifacts = list(repo.repo.get_artifacts())
 
 # A dictionary of all artifact counts, by name.
 artifact_count = {}
@@ -76,7 +76,7 @@ for art in artifacts:
                 deleted_count += 1
                 deleted_size += art.size_in_bytes
             else:
-                repo.error('cannot delete artifact %s' % (art.name))
+                repo.error(f'cannot delete artifact {art.name}')
                 error_count += 1
                 error_size += art.size_in_bytes
 

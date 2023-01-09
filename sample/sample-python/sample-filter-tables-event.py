@@ -21,7 +21,7 @@ class EventHandler(tsduck.AbstractPluginEventHandler):
     def handlePluginEvent(self, context, data):
         print("==== Event code: 0x%X from plugin #%d (%s), data size: %d bytes, at TS packet %d" %
               (context.event_code, context.plugin_index, context.plugin_name, len(data), context.plugin_packets))
-        print("Section: %s" % (data.hex()))
+        print(f"Section: {data.hex()}")
 
 # Create an asynchronous report to log multi-threaded messages.
 rep = tsduck.AsyncReport()

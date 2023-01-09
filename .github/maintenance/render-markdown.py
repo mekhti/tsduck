@@ -53,11 +53,15 @@ class style_grabber(html.parser.HTMLParser):
         if tag == 'head':
             self.head_depth -= 1
     def handle_startendtag(self, tag, attrs):
-        if tag == 'link' and self.head_depth > 0 and len([a for a in attrs if a[0] == 'rel' and a[1] == 'stylesheet']) > 0:
+        if (
+            tag == 'link'
+            and self.head_depth > 0
+            and [a for a in attrs if a[0] == 'rel' and a[1] == 'stylesheet']
+        ):
             self.text += self.get_starttag_text()
 
 # Get HTML <link> to GitHub .css files which are required to display GitHub markdown.
-html_begin = '<html><head>' + style_grabber(requests.get(repo.repo_url).text).text + '</head><body>'
+html_begin = f'<html><head>{style_grabber(requests.get(repo.repo_url).text).text}</head><body>'
 html_end = '</body></html>'
 
 # Open HTML text in a browser.
@@ -81,7 +85,7 @@ def open_html(text):
     os.write(fd, text.encode())
     os.close(fd)
     # Open the HTML in a browser.
-    url = 'file://' + fname if os.name == 'posix' else fname
+    url = f'file://{fname}' if os.name == 'posix' else fname
     webbrowser.open_new_tab(url)
     # Delete the temporary files after a delay to let the browser load the file.
     if not repo.debug_mode:

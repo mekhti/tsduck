@@ -42,11 +42,13 @@ def scripts_dir():
 def repo_root():
     dir = scripts_dir()
     while True:
-        if os.path.isdir(dir + '/.git') or os.path.isfile(dir + '/LICENSE.txt'):
+        if os.path.isdir(f'{dir}/.git') or os.path.isfile(
+            f'{dir}/LICENSE.txt'
+        ):
             return dir
         parent = os.path.dirname(dir)
         if os.path.samefile(dir, parent):
-            raise ValueError('repository directory not found below %s' % dir)
+            raise ValueError(f'repository directory not found below {dir}')
         dir = parent
 
 # Run a command and get stdout+stderr.
@@ -70,15 +72,14 @@ def write(filename, content):
 # Get the TSDuck version from the file tsVersion.h.
 # Return as major, minor, commit/
 def version():
-    match = re.search(r'^ *#define +TS_VERSION_MAJOR +(\d+) *$.*' +
-                      r'^ *#define +TS_VERSION_MINOR +(\d+) *$.*' +
-                      r'^ *#define +TS_COMMIT +(\d+) *$',
-                      read(repo_root() + '/src/libtsduck/tsVersion.h'),
-                      re.MULTILINE | re.DOTALL)
-    if match is None:
-        return 0, 0, 0
-    else:
-        return match.group(1), match.group(2), match.group(3)
+    match = re.search(
+        r'^ *#define +TS_VERSION_MAJOR +(\d+) *$.*'
+        + r'^ *#define +TS_VERSION_MINOR +(\d+) *$.*'
+        + r'^ *#define +TS_COMMIT +(\d+) *$',
+        read(f'{repo_root()}/src/libtsduck/tsVersion.h'),
+        re.MULTILINE | re.DOTALL,
+    )
+    return (0, 0, 0) if match is None else (match[1], match[2], match[3])
 
 # Get a description of the operating system and distro.
 def distro():
@@ -93,32 +94,32 @@ def distro():
         return name + re.sub(r'\..*', '', version)
     if os.path.exists('/etc/fedora-release'):
         match = re.search(r' release (\d+)', read('/etc/fedora-release'), re.MULTILINE | re.DOTALL | re.IGNORECASE)
-        return 'fc' + ('' if match is None else match.group(1))
+        return 'fc' + ('' if match is None else match[1])
     if os.path.exists('/etc/redhat-release'):
         match = re.search(r' release (\d+)', read('/etc/redhat-release'), re.MULTILINE | re.DOTALL | re.IGNORECASE)
-        return 'el' + ('' if match is None else match.group(1))
+        return 'el' + ('' if match is None else match[1])
     if os.path.exists('/etc/alpine-release'):
         match = re.search(r'^(\d[\.\d]+)\.[^\.]$', read('/etc/alpine-release'), re.MULTILINE | re.DOTALL | re.IGNORECASE)
-        return 'alpine' + ('' if match is None else match.group(1).replace('.',''))
+        return 'alpine' + ('' if match is None else match[1].replace('.', ''))
     return ''
 
 # Get a description of the operating system and distro as a file suffix.
 def distro_suffix():
     suffix = distro()
     if suffix != '':
-        suffix = '.' + suffix
+        suffix = f'.{suffix}'
     return suffix
 
 # Write a standard source header in an output file.
 def write_source_header(comment_prefix, description=None, file=sys.stdout):
-    with open(repo_root() + '/src/HEADER.txt') as input:
+    with open(f'{repo_root()}/src/HEADER.txt') as input:
         last = ''
         for line in input:
             last = comment_prefix + line
             print(last, end='', file=file)
         if description is not None:
             print(comment_prefix, file=file)
-            print(comment_prefix + '  ' + description, file=file)
+            print(f'{comment_prefix}  {description}', file=file)
             print(comment_prefix, file=file)
             print(last, end='', file=file)
         print('', file=file)

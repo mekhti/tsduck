@@ -36,7 +36,7 @@
 import tsbuild, sys, os, re
 
 if len(sys.argv) != 3:
-    print('Usage: %s in-file out-file' % sys.argv[0], file=sys.stderr)
+    print(f'Usage: {sys.argv[0]} in-file out-file', file=sys.stderr)
     exit(1)
 
 input_file = sys.argv[1]
@@ -50,4 +50,4 @@ with open(output_file, 'w') as output:
             for line in input:
                 match = re.search(r'#define\s+DTAPI_CAP_.*\sDtapi::DtCaps\(([\d]+)\)\s*//\s*(.+)$', line.strip())
                 if match is not None:
-                    print('%s = %s' % (match.group(1), match.group(2)), file=output)
+                    print(f'{match[1]} = {match[2]}', file=output)

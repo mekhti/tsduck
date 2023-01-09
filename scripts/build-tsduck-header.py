@@ -71,7 +71,7 @@ def collect_headers(root):
 def generate_header(out):
     # Collect header files.
     rootdir = tsbuild.repo_root()
-    collect_headers(rootdir + '/src/libtsduck')
+    collect_headers(f'{rootdir}/src/libtsduck')
     # Extend Unix-like systems with common Unix definitions.
     for osname in unixen:
         headers[osname].extend(headers['unix'])
@@ -92,9 +92,9 @@ def generate_header(out):
         print(intro, file=out)
         intro = ''
         if system != '':
-            print('#if defined(TS_%s)' % system.upper(), file=out)
-        for name in (files):
-            print('#include "%s"' % name, file=out)
+            print(f'#if defined(TS_{system.upper()})', file=out)
+        for name in files:
+            print(f'#include "{name}"', file=out)
         if system != '':
             print('#endif', file=out)
 

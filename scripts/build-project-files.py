@@ -130,7 +130,7 @@ def random_hex(byte_count):
 
 # Generate a random GUID.
 def random_guid():
-    return '%s-%s-%s-%s-%s' % (random_hex(4), random_hex(2), random_hex(2), random_hex(2), random_hex(6))
+    return f'{random_hex(4)}-{random_hex(2)}-{random_hex(2)}-{random_hex(2)}-{random_hex(6)}'
 
 # Build the name of an MSBuild project file.
 def ms_file(name):
@@ -147,7 +147,7 @@ def get_guid(name):
 def build_ms_files(names, srcdir, props):
     for name in names:
         guid = get_guid(name)
-        if guid == None:
+        if guid is None:
             guid = random_guid()
         all_props = [props]
         if 'tsduckdll' in ms_deps[name]['deps']:

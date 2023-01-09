@@ -23,7 +23,7 @@ class Logger(tsduck.AbstractSyncReport):
 
     # This method is invoked each time a message is logged by TSDuck.
     def log(self, severity, message):
-        print("==> %s%s" % (tsduck.Report.header(severity), message))
+        print(f"==> {tsduck.Report.header(severity)}{message}")
 
 # Main program: create a SectionFile.
 rep = Logger(tsduck.Report.Verbose)
@@ -33,16 +33,16 @@ file = tsduck.SectionFile(duck)
 # If command line arguments are provided, load the corresponding files.
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("usage: %s [bin_or_xml_file ...]" % (sys.argv[0]))
+        print(f"usage: {sys.argv[0]} [bin_or_xml_file ...]")
     for i in range(1, len(sys.argv)):
         if sys.argv[i].endswith(".xml"):
-            rep.info("loading XML file %s" % (sys.argv[i]))
+            rep.info(f"loading XML file {sys.argv[i]}")
             file.loadXML(sys.argv[i])
         elif sys.argv[i].endswith(".bin"):
-            rep.info("loading binary file %s" % (sys.argv[i]))
+            rep.info(f"loading binary file {sys.argv[i]}")
             file.loadBinary(sys.argv[i])
         else:
-            rep.error("unknown file type %s, ignored" % (sys.argv[i]))
+            rep.error(f"unknown file type {sys.argv[i]}, ignored")
 
 rep.info("After initial load: %d bytes, %d sections, %d tables" % (file.binarySize(), file.sectionsCount(), file.tablesCount()))
 
